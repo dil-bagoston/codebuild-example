@@ -1,0 +1,17 @@
+version: 0.2
+
+batch:
+  fast-fail: true
+  build-graph:
+    - identifier: frontend
+      buildspec: frontend/buildspec.yaml
+      env:
+        variables:
+          BUILD_ID: frontend
+      ignore-failure: false
+    - identifier: backend
+      buildspec: backend/buildspec.yaml
+      env:
+        variables:
+          BUILD_ID: backend
+      ignore-failure: false
