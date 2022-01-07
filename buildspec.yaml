@@ -44,8 +44,7 @@ phases:
       - echo $IMAGE_TAG
       - |-
               #!/bin/sh
-              docker run --rm -v "$(pwd):/repo" gittools/gitversion:5.3.5-linux-alpine.3.10-x64-netcoreapp3.1 /repo
-              values=$(/tools/dotnet-gitversion . /verbosity Minimal /output json /overrideconfig tag-prefix=$TAGPREFIX)
+              values=docker run --rm -v "$(pwd):/repo" gittools/gitversion:5.3.5-linux-alpine.3.10-x64-netcoreapp3.1 /repo /verbosity Minimal /output json /overrideconfig tag-prefix=$TAGPREFIX
               echo $values
               apk add jq
               for s in $(echo $values | jq -r "to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]" ); do
