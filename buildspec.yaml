@@ -4,13 +4,13 @@ batch:
   fast-fail: true
   build-graph:
     - identifier: frontend
-      buildspec: frontend/buildspec.yaml
+      buildspec: frontend/buildspec.yml
       env:
         variables:
           BUILD_ID: frontend
       ignore-failure: false
     - identifier: backend
-      buildspec: backend/buildspec.yaml
+      buildspec: backend/buildspec.yml
       env:
         variables:
           BUILD_ID: backend
