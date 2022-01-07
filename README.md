@@ -1,2 +1,2 @@
 # codebuild-example
-Example repositroy for AWS CodeBuild and CodePipeline
+Example monorepo for AWS CodeBuild and CodePipeline
