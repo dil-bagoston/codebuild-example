@@ -15,3 +15,29 @@ batch:
         variables:
           BUILD_ID: backend
       ignore-failure: false
+
+phases:
+  install:
+    commands:
+      - echo Entered the install phase....
+      - nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &
+      - timeout 15 sh -c "until docker info; do echo .; sleep 1; done"
+  pre_build:
+    commands:
+      - echo Entered the pre_build phase...
+      - echo $CODEBUILD_WEBHOOK_TRIGGER
+      - echo $CODEBUILD_SOURCE_VERSION
+      - echo $CODEBUILD_RESOLVED_SOURCE_VERSION
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=build-$(echo $CODEBUILD_BUILD_ID | awk -F":" '{print $2}')
+      - echo $COMMIT_HASH
+      - echo $IMAGE_TAG
+  build:
+    commands:
+      - echo Entered the build phase...
+      - echo Build started on `date`
+  post_build:
+    commands:
+      - echo Entered the post_build phase...
+      - echo Build completed on `date`
+  
