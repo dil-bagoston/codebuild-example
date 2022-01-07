@@ -1,17 +1,50 @@
 version: 0.2
 
+env:
+  secrets-manager:
+    CLOUDSMITH_USR: PavedRoadCodeBuildSecret:cloudsmith-write-usr
+    CLOUDSMITH_API_KEY: PavedRoadCodeBuildSecret:cloudsmith-write-api-key
+
 batch:
   fast-fail: true
   build-graph:
     - identifier: frontend
-      buildspec: frontend/buildspec.yml
       env:
         variables:
           BUILD_ID: frontend
+          IMAGE_REPO_NAME: docker.cloudsmith.io/diligent/sre-dev-paved-road/codebuild-frontend-example
       ignore-failure: false
     - identifier: backend
-      buildspec: backend/buildspec.yml
       env:
         variables:
           BUILD_ID: backend
+          IMAGE_REPO_NAME: docker.cloudsmith.io/diligent/sre-dev-paved-road/codebuild-backend-example
       ignore-failure: false
+
+phases:
+  install:
+    commands:
+      - echo Entered the install phase....
+      - nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &
+      - timeout 15 sh -c "until docker info; do echo .; sleep 1; done"
+  pre_build:
+    commands:
+      - echo Entered the pre_build phase...
+      - docker login docker.cloudsmith.io -u $CLOUDSMITH_USR -p $CLOUDSMITH_API_KEY
+      - echo $CODEBUILD_WEBHOOK_TRIGGER
+      - echo $CODEBUILD_SOURCE_VERSION
+      - echo $CODEBUILD_RESOLVED_SOURCE_VERSION
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=build-$(echo $CODEBUILD_BUILD_ID | awk -F":" '{print $2}')
+      - echo $COMMIT_HASH
+      - echo $IMAGE_TAG
+  build:
+    commands:
+      - echo Entered the build phase...
+      - echo Build started on `date`
+      - docker build -t $IMAGE_REPO_NAME/$IMAGE_TAG -f backend/Dockerfile .
+  post_build:
+    commands:
+      - echo Entered the post_build phase...
+      - docker push $IMAGE_REPO_NAME/$IMAGE_TAG
+      - echo Build completed on `date`
