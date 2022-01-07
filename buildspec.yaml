@@ -14,6 +14,7 @@ batch:
           BUILD_ID: frontend
           IMAGE_REPO_NAME: docker.cloudsmith.io/diligent/sre-dev-paved-road/codebuild-frontend-example
           APPDIR: ./frontend
+          TAGPREFIX: forntend/
       ignore-failure: false
     - identifier: backend
       env:
@@ -21,6 +22,7 @@ batch:
           BUILD_ID: backend
           IMAGE_REPO_NAME: docker.cloudsmith.io/diligent/sre-dev-paved-road/codebuild-backend-example
           APPDIR: ./backend
+          TAGPREFIX: backend/
       ignore-failure: false
 
 phases:
@@ -39,6 +41,17 @@ phases:
       - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
       - IMAGE_TAG=build-$(echo $CODEBUILD_BUILD_ID | awk -F":" '{print $2}')
       - echo $COMMIT_HASH
+      - echo $IMAGE_TAG
+      - |-
+              #!/bin/sh
+              docker run --rm -v "$(pwd):/repo" gittools/gitversion:5.3.5-linux-alpine.3.10-x64-netcoreapp3.1 /repo
+              values=$(/tools/dotnet-gitversion . /verbosity Minimal /output json /overrideconfig tag-prefix=$TAGPREFIX)
+              echo $values
+              apk add jq
+              for s in $(echo $values | jq -r "to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]" ); do
+                  export $s
+              done
+              export IMAGE_TAG="${SemVer}-${ShortSha}" | tr "[:upper:]" "[:lower:]"
       - echo $IMAGE_TAG
   build:
     commands:
