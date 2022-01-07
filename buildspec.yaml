@@ -13,14 +13,14 @@ batch:
         variables:
           BUILD_ID: frontend
           IMAGE_REPO_NAME: docker.cloudsmith.io/diligent/sre-dev-paved-road/codebuild-frontend-example
-          APPDIR: frontend/Dockerfile
+          APPDIR: ./frontend
       ignore-failure: false
     - identifier: backend
       env:
         variables:
           BUILD_ID: backend
           IMAGE_REPO_NAME: docker.cloudsmith.io/diligent/sre-dev-paved-road/codebuild-backend-example
-          APPDIR: backend/Dockerfile
+          APPDIR: ./backend
       ignore-failure: false
 
 phases:
