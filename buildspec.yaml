@@ -37,6 +37,7 @@ phases:
       - env
       - echo Entered the pre_build phase...
       - docker login docker.cloudsmith.io -u $CLOUDSMITH_USR -p $CLOUDSMITH_API_KEY
+      - CODEBUILD_WEBHOOK_HEAD_REF=$CODEPIPELINE_WEBHOOK_HEAD_REF
       - values=$(gitversion $CODEBUILD_SRC_DIR /diag /verbosity Minimal /output json /overrideconfig tag-prefix=$TAGPREFIX)
       - SemVer=$(echo $values | jq -r '.SemVer')
       - ShortSha=$(echo $values | jq -r '.ShortSha')
