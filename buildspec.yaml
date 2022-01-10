@@ -1,6 +1,8 @@
 version: 0.2
 
 env:
+  variables:
+    IMAGE_REPO_NAME: docker.cloudsmith.io/diligent/sre-dev-paved-road/codebuild-frontend-example
   secrets-manager:
     CLOUDSMITH_USR: PavedRoadCodeBuildSecret:cloudsmith-write-usr
     CLOUDSMITH_API_KEY: PavedRoadCodeBuildSecret:cloudsmith-write-api-key
@@ -12,7 +14,6 @@ batch:
       env:
         variables:
           BUILD_ID: frontend
-          IMAGE_REPO_NAME: docker.cloudsmith.io/diligent/sre-dev-paved-road/codebuild-frontend-example
           APPDIR: ./frontend
           TAGPREFIX: forntend/
       ignore-failure: false
@@ -20,7 +21,6 @@ batch:
       env:
         variables:
           BUILD_ID: backend
-          IMAGE_REPO_NAME: docker.cloudsmith.io/diligent/sre-dev-paved-road/codebuild-backend-example
           APPDIR: ./backend
           TAGPREFIX: backend/
       ignore-failure: false
@@ -43,7 +43,6 @@ phases:
       - echo $COMMIT_HASH
       - values=$(gitversion $CODEBUILD_SRC_DIR /verbosity Minimal /output json /overrideconfig tag-prefix=$TAGPREFIX)
       - echo $values
-      - for s in $(echo $values | jq -r "to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]" ); do export $s; done
       - SemVer=$(echo $values | jq -r '.[].SemVer')
       - echo $SemVer
       - ShortSha=$(echo $values | jq -r '.[].ShortSha')
