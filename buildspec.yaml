@@ -47,7 +47,7 @@ phases:
       - echo $SemVer
       - ShortSha=$(echo $values | jq -r '.ShortSha')
       - echo $ShortSha
-      - IMAGE_TAG="${SemVer}-${ShortSha}" | tr "[:upper:]" "[:lower:]"
+      - IMAGE_TAG="${SemVer}-${ShortSha}"
       - echo $IMAGE_TAG
   build:
     commands:
