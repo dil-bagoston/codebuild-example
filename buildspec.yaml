@@ -36,19 +36,10 @@ phases:
     commands:
       - echo Entered the pre_build phase...
       - docker login docker.cloudsmith.io -u $CLOUDSMITH_USR -p $CLOUDSMITH_API_KEY
-      - echo $CODEBUILD_WEBHOOK_TRIGGER
-      - echo $CODEBUILD_SOURCE_VERSION
-      - echo $CODEBUILD_RESOLVED_SOURCE_VERSION
-      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
-      - echo $COMMIT_HASH
       - values=$(gitversion $CODEBUILD_SRC_DIR /verbosity Minimal /output json /overrideconfig tag-prefix=$TAGPREFIX)
-      - echo $values
       - SemVer=$(echo $values | jq -r '.SemVer')
-      - echo $SemVer
       - ShortSha=$(echo $values | jq -r '.ShortSha')
-      - echo $ShortSha
       - IMAGE_TAG="${SemVer}-${ShortSha}"
-      - echo $IMAGE_TAG
   build:
     commands:
       - echo Entered the build phase...
