@@ -44,9 +44,9 @@ phases:
       - values=$(gitversion $CODEBUILD_SRC_DIR /verbosity Minimal /output json /overrideconfig tag-prefix=$TAGPREFIX)
       - echo $values
       - for s in $(echo $values | jq -r "to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]" ); do export $s; done
-      - SemVer=jq -r '.[].SemVer'
+      - SemVer=$(echo $values | jq -r '.[].SemVer')
       - echo $SemVer
-      - ShortSha=jq -r '.[].ShortSha'
+      - ShortSha=$(echo $values | jq -r '.[].ShortSha')
       - echo $ShortSha
       - IMAGE_TAG="${SemVer}-${ShortSha}" | tr "[:upper:]" "[:lower:]"
       - echo $IMAGE_TAG
