@@ -1,8 +1,6 @@
 version: 0.2
 
 env:
-  variables:
-    IMAGE_REPO_NAME: docker.cloudsmith.io/diligent/sre-dev-paved-road/codebuild-frontend-example
   secrets-manager:
     CLOUDSMITH_USR: PavedRoadCodeBuildSecret:cloudsmith-write-usr
     CLOUDSMITH_API_KEY: PavedRoadCodeBuildSecret:cloudsmith-write-api-key
@@ -11,42 +9,20 @@ batch:
   fast-fail: true
   build-graph:
     - identifier: frontend
+      buildspec: ./aws-code-resources/buildspec.yaml
       env:
         variables:
           BUILD_ID: frontend
           APPDIR: ./frontend
           TAGPREFIX: forntend/
+          IMAGE_REPO_NAME: docker.cloudsmith.io/diligent/sre-dev-paved-road/codebuild-frontend-example
       ignore-failure: false
     - identifier: backend
+      buildspec: ./aws-code-resources/buildspec.yaml
       env:
         variables:
           BUILD_ID: backend
           APPDIR: ./backend
           TAGPREFIX: backend/
+          IMAGE_REPO_NAME: docker.cloudsmith.io/diligent/sre-dev-paved-road/codebuild-frontend-example
       ignore-failure: false
-
-phases:
-  install:
-    commands:
-      - echo Entered the install phase....
-      - nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &
-      - timeout 15 sh -c "until docker info; do echo .; sleep 1; done"
-      - apt-get install jq -y
-  pre_build:
-    commands:
-      - echo Entered the pre_build phase...
-      - docker login docker.cloudsmith.io -u $CLOUDSMITH_USR -p $CLOUDSMITH_API_KEY
-      - values=$(gitversion $CODEBUILD_SRC_DIR /diag /verbosity Minimal /output json /overrideconfig tag-prefix=$TAGPREFIX)
-      - SemVer=$(echo $values | jq -r '.SemVer')
-      - ShortSha=$(echo $values | jq -r '.ShortSha')
-      - IMAGE_TAG="${SemVer}-${ShortSha}"
-  build:
-    commands:
-      - echo Entered the build phase...
-      - echo Build started on `date`
-      - docker build -t $IMAGE_REPO_NAME/$IMAGE_TAG $APPDIR
-  post_build:
-    commands:
-      - echo Entered the post_build phase...
-      - docker push $IMAGE_REPO_NAME/$IMAGE_TAG
-      - echo Build completed on `date`
