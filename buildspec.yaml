@@ -4,7 +4,7 @@ batch:
   fast-fail: true
   build-graph:
     - identifier: frontend
-      buildspec: ./aws-code-resources/buildspec.yaml
+      buildspec: ./aws-code-resources/buildspec-ubuntu-standard-5.yaml
       env:
         variables:
           BUILD_ID: frontend
@@ -13,7 +13,7 @@ batch:
           IMAGE_REPO_NAME: docker.cloudsmith.io/diligent/sre-dev-paved-road/codebuild-frontend-example
       ignore-failure: false
     - identifier: backend
-      buildspec: ./aws-code-resources/buildspec.yaml
+      buildspec: ./aws-code-resources/buildspec-ubuntu-standard-5.yaml
       env:
         variables:
           BUILD_ID: backend
